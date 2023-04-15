@@ -1,0 +1,40 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  width: 100%;
+  background-color: #242532;
+  color: #F0F1F2;
+}
+
+table {
+  margin: 3rem auto;
+  width: 80%;
+  height: 70%;
+  border: solid 3px #d4d4d400;
+  border-collapse: collapse;
+}
+
+td, th {
+  padding: 10px;
+  text-align: center;
+  vertical-align: center;
+  border: solid 2px #8d8d8d;
+}
+
+th {
+  font-size: 20px;
+  background-color: #d4d4d4;
+  color: #242532;
+}
+
+tr:nth-child(even) {
+  background-color: #323442;
+}
+
+.created_at {
+  width: 165px;
+}
