@@ -1,60 +1,97 @@
-import React,{ useEffect, useState } from 'react'
+import React from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
+import axios from 'axios'
+import {useQuery} from 'react-query'
+import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+import { useLocation } from 'react-router-dom';
 
 
-function fetchData() {
-  let [data, setData] = useState([])
-  
-  useEffect( () => {
-    fetch('https://json.xstack.ir/api/v1/users')
-    .then((response) => response.json())
-    .then(setData)
-  }, [])
-
+async function fetchData() {
+  const {data} = await axios.get('https://json.xstack.ir/api/v1/users')    
   return data.data
 }
 
 
+const Loading = () => {
+  return(
+    <div className='loading'>
+      <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+      <br /><br /><br /><br /><br /><br />
+      <h1>Loading...</h1>
+    </div>
+  )
+}
+
+
+const Home = (props) => {
+  return(
+    <>
+      <ul className='user-email'>
+        {props.data.map(user => {
+          return(
+            <Link key={user.id} to='user-info/' state={user}><li>{user.email}</li></Link>
+        )})}
+      </ul>
+    </>
+  )
+}
+
+
+const Information = () => {
+  const location = useLocation();  
+  const user = location.state;
+
+  return(
+    <>
+      <div className='information'>
+        <div className='id'>{user.id}</div>
+        <ul>
+          <li className='info'><span>name</span> <span>{user.name}</span></li>
+          <li className='info'><span>email</span> <span>{user.email}</span></li>
+          <li className='date'>email verified at {user.email_verified_at.slice(0, 10)} at {user.email_verified_at.slice(11, 19)}</li>
+          <li className='date'>created at {user.created_at.slice(0, 10)} at {user.created_at.slice(11, 19)}</li>
+          <li className='date'>updated at {user.updated_at.slice(0, 10)} at {user.updated_at.slice(11, 19)}</li>
+        </ul>
+
+        <Link to='/'><div className='btn-to-home'>BACK TO HOME</div></Link>
+      </div>
+    </>
+  )
+}
+
+
+
 function App() {
-  let data = fetchData() 
-  if (data) {
-    return (
-      <>
-        <table>
-          <thead>
-            <th>id</th>
-            <th>name</th>
-            <th>email</th>
-            <th>email_verified_at</th>
-            <th>created_at</th>
-            <th>updated_at</th>
-          </thead>
-          {data.map(user => {
-            return (
-              <tr>
-                <td>{user.id}</td>
-                <td>{user.name}</td>
-                <td>{user.email}</td>
-                <td>date: {user.email_verified_at.slice(0, 10)}<br />time: {user.email_verified_at.slice(11, 19)}</td>
-                <td className='created_at'>date: {user.created_at.slice(0, 10)}<br />time: {user.created_at.slice(11, 19)}</td>
-                <td className='updated_at'>date: {user.updated_at.slice(0, 10)}<br />time: {user.updated_at.slice(11, 19)}</td>
-              </tr>
-            )
-          })}
-        </table>
-      </>
-    )
+  const {data, error, isError, isLoading } = useQuery('get', fetchData)
+  if (!isError) {
+    if (!isLoading) {
+      return(
+        <>
+          <BrowserRouter>
+            <Routes>
+              <Route path='/' element={<Home data={data} />}/>
+              <Route path='user-info/' element={<Information />}/>
+            </Routes>
+          </BrowserRouter>
+        </>
+      )
+    } 
+    else {
+      return(
+        <>
+          <Loading />
+        </>
+      )
+    }
   }
   else {
     return(
-      <>
-        <h2>429 | TOO MANY REQUESTS</h2>
-        <h4>Please wait and reload page again...</h4>
-      </>
+      <h1>{error}</h1>
     )
   }
 }
+
 
 export default App
